@@ -1,0 +1,48 @@
+﻿<Window x:Class="WPF_Snake.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Snake"
+        xmlns:converter="clr-namespace:WPF_Snake.Converters"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Grid>
+        <Viewbox>
+            <Canvas Width="{Binding GameGridSize}" Height="{Binding GameGridSize}"  Background="Black">
+                <Ellipse DataContext="{Binding Fruit}"
+                         Canvas.Top="{Binding YPos}"
+                         Canvas.Left="{Binding XPos}"
+                         Width="{Binding Width}" Height="{Binding Height}" Fill="Green" />
+            </Canvas>
+        </Viewbox>
+        <Viewbox>
+            <Border>
+                <ItemsControl ItemsSource="{Binding Snake}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas Width="{Binding GameGridSize}" Height="{Binding GameGridSize}"  Background="Transparent"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Canvas.Left" Value="{Binding XPos}" />
+                            <Setter Property="Canvas.Top" Value="{Binding YPos}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border>
+                                <Ellipse Width="{Binding Width}" Height="{Binding Height}" Fill="{Binding Rgb, Converter={converter:RgbArrayToSolidColorBrushConverter}}"/>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </Viewbox>
+    </Grid>
+
+</Window>
