@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
+using WPF_Snake.DataModels;
+using WPF_Snake.Models;
 using WPF_Snake.ViewModels.Base;
 
 namespace WPF_Snake.ViewModels
@@ -25,6 +29,10 @@ namespace WPF_Snake.ViewModels
         private const int MAX_GAME_GRID_ROWS = 40;
         private const int MAX_GAME_GRID_COLUMNS = 40;
 
+        private Direction _currentDirection = Direction.DOWN;
+        private Queue<NextMove> _nextMoves = new Queue<NextMove>();
+        private object _lock = new object();
+
         #endregion
 
         #region Properties
@@ -33,6 +41,11 @@ namespace WPF_Snake.ViewModels
         /// The size of the game grid
         /// </summary>
         public int GameGridSize => MAX_GAME_GRID_SIZE;
+
+        /// <summary>
+        /// The current score
+        /// </summary>
+        public int Score { get; set; } = 0;
 
         /// <summary>
         /// Flag to let us know if the game is over
@@ -63,10 +76,15 @@ namespace WPF_Snake.ViewModels
         {
             _window = window;
             _window.KeyUp += _window_KeyUp;
+
+            BindingOperations.EnableCollectionSynchronization(Snake, _lock);
+
             var snakeHead = new CellViewModel(200, 200);
             snakeHead.Rgb = CellViewModel.SNAKE_HEAD_RGB;
             Snake.Add(snakeHead);
             SpawnFruit();
+
+            Task.Run(() => GameLoop());
         }
 
         #endregion
@@ -78,6 +96,29 @@ namespace WPF_Snake.ViewModels
         #region Methods
 
         /// <summary>
+        /// The game loop
+        /// </summary>
+        private void GameLoop()
+        {
+            while (!GameOver)
+            {
+                Thread.Sleep(100);
+                if (_nextMoves.Any())
+                {
+                    var move = _nextMoves.Dequeue();
+                    _currentDirection = move.Direction;
+                    MoveSnake(move.Xpos, move.Ypos);
+                }
+                else
+                {
+                    MoveSnake();
+                }
+
+                CheckIfFruitEaten();
+            }
+        }
+
+        /// <summary>
         /// The window key up event notifies us that a key was let go
         /// </summary>
         /// <param name="sender"></param>
@@ -86,38 +127,29 @@ namespace WPF_Snake.ViewModels
         {
             int xPos = 0;
             int yPos = 0;
-            bool growSnake = false;
+            Direction newDirecton = Direction.LEFT;
+
             switch (e.Key)
             {
-                case Key.Space:
-                    growSnake = true;
-                    break;
                 case Key.Left:
-                    xPos -= 10;
+                    xPos -= CellViewModel.CELL_SIZE;
+                    newDirecton = Direction.LEFT;
                     break;
                 case Key.Up:
-                    yPos -= 10;
+                    yPos -= CellViewModel.CELL_SIZE;
+                    newDirecton = Direction.UP;
                     break;
                 case Key.Right:
-                    xPos += 10;
+                    xPos += CellViewModel.CELL_SIZE;
+                    newDirecton = Direction.RIGHT;
                     break;
                 case Key.Down:
-                    yPos += 10;
+                    yPos += CellViewModel.CELL_SIZE;
+                    newDirecton = Direction.DOWN;
                     break;
             }
 
-            if (growSnake)
-            {
-                GrowSnake();
-                growSnake = false;
-            }
-
-            CheckIfSnakeEatSelf(xPos, yPos);
-            if (!GameOver)
-            {
-                MoveSnake(xPos, yPos);
-                CheckIfFruitEaten();
-            }
+            _nextMoves.Enqueue(new NextMove(xPos, yPos, newDirecton));
         }
 
         /// <summary>
@@ -169,7 +201,32 @@ namespace WPF_Snake.ViewModels
             {
                 GrowSnake();
                 SpawnFruit();
+                Score++;
             }
+        }
+
+        private void MoveSnake()
+        {
+            int xPos = 0;
+            int yPos = 0;
+
+            switch (_currentDirection)
+            {
+                case Direction.LEFT:
+                    xPos -= CellViewModel.CELL_SIZE;
+                    break;
+                case Direction.UP:
+                    yPos -= CellViewModel.CELL_SIZE;
+                    break;
+                case Direction.RIGHT:
+                    xPos += CellViewModel.CELL_SIZE;
+                    break;
+                case Direction.DOWN:
+                    yPos += CellViewModel.CELL_SIZE;
+                    break;
+            }
+
+            MoveSnake(xPos, yPos);
         }
 
         /// <summary>

@@ -15,6 +15,8 @@ namespace WPF_Snake.ViewModels
         public static int[] SNAKE_BODY2_RGB = { 0, 200, 0 };
         public static int[] SNAKE_BODY3_RGB = { 0, 150, 0 };
 
+        public static int CELL_SIZE = 10;
+
         #endregion
 
         #region Properties
@@ -22,12 +24,12 @@ namespace WPF_Snake.ViewModels
         /// <summary>
         /// Width of the cell
         /// </summary>
-        public int Width => 10;
+        public int Width => CELL_SIZE;
 
         /// <summary>
         /// Height of the cell
         /// </summary>
-        public int Height => 10;
+        public int Height => CELL_SIZE;
 
         /// <summary>
         /// The x position of a cell

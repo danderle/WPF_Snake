@@ -8,18 +8,35 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
-        Title="MainWindow" Height="450" Width="800">
+        MinHeight="800" MinWidth="800"
+        Title="MainWindow" Height="800" Width="800">
 
-    <Grid>
-        <Viewbox>
-            <Canvas Width="{Binding GameGridSize}" Height="{Binding GameGridSize}"  Background="Black">
-                <Ellipse DataContext="{Binding Fruit}"
-                         Canvas.Top="{Binding YPos}"
-                         Canvas.Left="{Binding XPos}"
-                         Width="{Binding Width}" Height="{Binding Height}" Fill="Green" />
-            </Canvas>
+    <Border Padding="100">
+        <Border.Background>
+            <RadialGradientBrush GradientOrigin="0.5, 0.5" Center="0.5, 0.5" RadiusX="0.6" RadiusY="0.7">
+                <GradientStop Color="Purple" Offset="0.8" />
+                <GradientStop Color="Black" Offset="1" />
+            </RadialGradientBrush>
+        </Border.Background>
+        <Grid HorizontalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Text="{Binding Score, StringFormat='Score {0}'}" 
+                       FontSize="20"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Right"/>
+            <Viewbox Grid.Row="1">
+                <Canvas Width="{Binding GameGridSize}" Height="{Binding GameGridSize}"  Background="Black">
+                    <Ellipse DataContext="{Binding Fruit}"
+                             Canvas.Top="{Binding YPos}"
+                             Canvas.Left="{Binding XPos}"
+                             Width="{Binding Width}" Height="{Binding Height}" Fill="Green" />
+                </Canvas>
         </Viewbox>
-        <Viewbox>
+        <Viewbox Grid.Row="1">
             <Border>
                 <ItemsControl ItemsSource="{Binding Snake}">
                     <ItemsControl.ItemsPanel>
@@ -44,5 +61,7 @@
             </Border>
         </Viewbox>
     </Grid>
+        
+    </Border>
 
 </Window>
