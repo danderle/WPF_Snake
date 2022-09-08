@@ -80,7 +80,7 @@ namespace WPF_Snake.ViewModels
         /// <summary>
         /// The high scores
         /// </summary>
-        public ObservableCollection<HighScore> HighScores { get; set; } = new ObservableCollection<HighScore>();
+        public ObservableCollection<HighScoreViewModel> HighScores { get; set; } = new ObservableCollection<HighScoreViewModel>();
 
         #endregion
 
@@ -121,11 +121,8 @@ namespace WPF_Snake.ViewModels
             HighScoresVisible = true;
             MainMenuVisible = false;
 
-            var jsonString = File.ReadAllText(HIGH_SCORES_PATH);
-            if (!string.IsNullOrEmpty(jsonString))
-            {
-                HighScores = JsonSerializer.Deserialize<ObservableCollection<HighScore>>(jsonString);
-            }
+            var hs = LoadHighScores();
+            HighScores = new ObservableCollection<HighScoreViewModel>(hs);
         }
 
         /// <summary>
@@ -149,13 +146,36 @@ namespace WPF_Snake.ViewModels
             SpawnFruit();
             MainMenuVisible = false;
             GameOver = false;
-
+            Score = 0;
             Task.Run(() => GameLoop());
         }
 
         #endregion
 
         #region Methods
+
+        private List<HighScoreViewModel> LoadHighScores(bool withZeros = false)
+        {
+            var highScores = new List<HighScoreViewModel>();
+            var jsonString = File.ReadAllText(HIGH_SCORES_PATH);
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                highScores = JsonSerializer.Deserialize<List<HighScoreViewModel>>(jsonString);
+            }
+
+            if (withZeros)
+            {
+                while (highScores.Count < 10)
+                {
+                    var hs = new HighScoreViewModel();
+                    hs.Score = 0;
+                    hs.Name = String.Empty;
+                    highScores.Add(hs);
+                }
+            }
+
+            return highScores;
+        }
 
         private void CreateSnake()
         {
@@ -193,13 +213,50 @@ namespace WPF_Snake.ViewModels
                 CheckIfFruitEaten();
             }
 
-            var hs = new HighScore();
+            var highScores = LoadHighScores(true);
+            var hs = new HighScoreViewModel();
             hs.Score = Score;
             hs.IsOldScore = false;
+            hs.Focus = true;
 
-            HighScores.Add(hs);
+            if (Score > highScores.Last().Score)
+            {
+                if (Score > highScores.First().Score)
+                {
+                    highScores.Insert(0, hs);
+                }
+                else
+                {
+                    bool scoreAdded = false;
+                    for (int i = highScores.Count - 1; i >= 0; i--)
+                    {
+                        if (Score <= highScores[i].Score)
+                        {
+                            highScores.Insert(i + 1, hs);
+                            scoreAdded = true;
+                            break;
+                        }
+                    }
 
-            ShowHighScores();
+                    if (!scoreAdded)
+                    {
+                        highScores.Add(hs);
+                    }
+                }
+
+                if (highScores.Count > 10)
+                {
+                    highScores.RemoveAt(10);
+                }
+
+                while (highScores.Last().Score == 0)
+                {
+                    highScores.Remove(highScores.Last());
+                }
+            }
+
+            HighScores = new ObservableCollection<HighScoreViewModel>(highScores);
+            HighScoresVisible = true;
         }
 
         /// <summary>
