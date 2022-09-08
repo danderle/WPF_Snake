@@ -32,6 +32,7 @@ namespace WPF_Snake.ViewModels
         private Direction _currentDirection = Direction.DOWN;
         private Queue<NextMove> _nextMoves = new Queue<NextMove>();
         private object _lock = new object();
+        private int _snakeSpeed = 200;
 
         #endregion
 
@@ -50,7 +51,12 @@ namespace WPF_Snake.ViewModels
         /// <summary>
         /// Flag to let us know if the game is over
         /// </summary>
-        public bool GameOver { get; set; } = false;
+        public bool GameOver { get; set; } = true;
+
+        /// <summary>
+        /// Flag to let us know if the main menu is visible
+        /// </summary>
+        public bool MainMenuVisible { get; set; } = true;
 
         /// <summary>
         /// Fruit grows randomly and grows the snake
@@ -66,7 +72,10 @@ namespace WPF_Snake.ViewModels
 
         #region Commands
 
-        public ICommand ClickCommand { get; set; }
+        public ICommand PlayCommand { get; set; }
+
+        public ICommand MainMenuCommand { get; set; }
+
 
         #endregion
 
@@ -84,12 +93,22 @@ namespace WPF_Snake.ViewModels
             Snake.Add(snakeHead);
             SpawnFruit();
 
-            Task.Run(() => GameLoop());
+            PlayCommand = new RelayCommand(Play);
         }
-
         #endregion
 
         #region Command Methods
+
+        /// <summary>
+        /// Hides the main menu and starts the gameloop
+        /// </summary>
+        private void Play()
+        {
+            MainMenuVisible = false;
+            GameOver = false;
+            Task.Run(() => GameLoop());
+        }
+
 
         #endregion
 
@@ -102,7 +121,8 @@ namespace WPF_Snake.ViewModels
         {
             while (!GameOver)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(_snakeSpeed);
+
                 if (_nextMoves.Any())
                 {
                     var move = _nextMoves.Dequeue();
@@ -132,18 +152,26 @@ namespace WPF_Snake.ViewModels
             switch (e.Key)
             {
                 case Key.Left:
+                    if (_currentDirection == Direction.RIGHT && Snake.Count > 2)
+                        return;
                     xPos -= CellViewModel.CELL_SIZE;
                     newDirecton = Direction.LEFT;
                     break;
                 case Key.Up:
+                    if (_currentDirection == Direction.DOWN && Snake.Count > 2)
+                        return;
                     yPos -= CellViewModel.CELL_SIZE;
                     newDirecton = Direction.UP;
                     break;
                 case Key.Right:
+                    if (_currentDirection == Direction.LEFT && Snake.Count > 2)
+                        return;
                     xPos += CellViewModel.CELL_SIZE;
                     newDirecton = Direction.RIGHT;
                     break;
                 case Key.Down:
+                    if (_currentDirection == Direction.UP && Snake.Count > 2)
+                        return;
                     yPos += CellViewModel.CELL_SIZE;
                     newDirecton = Direction.DOWN;
                     break;
@@ -202,9 +230,13 @@ namespace WPF_Snake.ViewModels
                 GrowSnake();
                 SpawnFruit();
                 Score++;
+                _snakeSpeed -= 2;
             }
         }
 
+        /// <summary>
+        /// Moves the snake one step in current direction
+        /// </summary>
         private void MoveSnake()
         {
             int xPos = 0;
@@ -226,7 +258,11 @@ namespace WPF_Snake.ViewModels
                     break;
             }
 
-            MoveSnake(xPos, yPos);
+            CheckIfSnakeEatSelf(xPos, yPos);
+            if (!GameOver)
+            {
+                MoveSnake(xPos, yPos);
+            }
         }
 
         /// <summary>
@@ -292,7 +328,6 @@ namespace WPF_Snake.ViewModels
 
             Snake.Insert(0, snakeSection);
         }
-
 
         /// <summary>
         /// Generates a new fruit at a random location
