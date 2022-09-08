@@ -1,8 +1,11 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -28,6 +31,7 @@ namespace WPF_Snake.ViewModels
         private const int MAX_GAME_GRID_SIZE = 400;
         private const int MAX_GAME_GRID_ROWS = 40;
         private const int MAX_GAME_GRID_COLUMNS = 40;
+        private const string HIGH_SCORES_PATH = "Resources/HighScores.json";
 
         private Direction _currentDirection = Direction.DOWN;
         private Queue<NextMove> _nextMoves = new Queue<NextMove>();
@@ -59,6 +63,11 @@ namespace WPF_Snake.ViewModels
         public bool MainMenuVisible { get; set; } = true;
 
         /// <summary>
+        /// Flag to let us know if the high scores are visible
+        /// </summary>
+        public bool HighScoresVisible { get; set; }
+
+        /// <summary>
         /// Fruit grows randomly and grows the snake
         /// </summary>
         public CellViewModel Fruit { get; set; }
@@ -68,6 +77,11 @@ namespace WPF_Snake.ViewModels
         /// </summary>
         public ObservableCollection<CellViewModel> Snake { get; set; } = new ObservableCollection<CellViewModel>();
 
+        /// <summary>
+        /// The high scores
+        /// </summary>
+        public ObservableCollection<HighScore> HighScores { get; set; } = new ObservableCollection<HighScore>();
+
         #endregion
 
         #region Commands
@@ -76,6 +90,7 @@ namespace WPF_Snake.ViewModels
 
         public ICommand MainMenuCommand { get; set; }
 
+        public ICommand HighScoresCommand { get; set; }
 
         #endregion
 
@@ -87,32 +102,68 @@ namespace WPF_Snake.ViewModels
             _window.KeyUp += _window_KeyUp;
 
             BindingOperations.EnableCollectionSynchronization(Snake, _lock);
-
-            var snakeHead = new CellViewModel(200, 200);
-            snakeHead.Rgb = CellViewModel.SNAKE_HEAD_RGB;
-            Snake.Add(snakeHead);
-            SpawnFruit();
+            BindingOperations.EnableCollectionSynchronization(HighScores, _lock);
 
             PlayCommand = new RelayCommand(Play);
+            MainMenuCommand = new RelayCommand(ShowMainMenu);
+            HighScoresCommand = new RelayCommand(ShowHighScores);
         }
+
         #endregion
 
         #region Command Methods
+
+        /// <summary>
+        /// Shows the high scores
+        /// </summary>
+        private void ShowHighScores()
+        {
+            HighScoresVisible = true;
+            MainMenuVisible = false;
+
+            var jsonString = File.ReadAllText(HIGH_SCORES_PATH);
+            if (!string.IsNullOrEmpty(jsonString))
+            {
+                HighScores = JsonSerializer.Deserialize<ObservableCollection<HighScore>>(jsonString);
+            }
+        }
+
+        /// <summary>
+        /// Hides the high scores menu and shows the main menu
+        /// </summary>
+        private void ShowMainMenu()
+        {
+            HighScoresVisible = false;
+            MainMenuVisible = true;
+
+            var jsonString = JsonSerializer.Serialize(HighScores, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(HIGH_SCORES_PATH, jsonString);
+        }
 
         /// <summary>
         /// Hides the main menu and starts the gameloop
         /// </summary>
         private void Play()
         {
+            CreateSnake();
+            SpawnFruit();
             MainMenuVisible = false;
             GameOver = false;
+
             Task.Run(() => GameLoop());
         }
-
 
         #endregion
 
         #region Methods
+
+        private void CreateSnake()
+        {
+            Snake.Clear();
+            var snakeHead = new CellViewModel(200, 200);
+            snakeHead.Rgb = CellViewModel.SNAKE_HEAD_RGB;
+            Snake.Add(snakeHead);
+        }
 
         /// <summary>
         /// The game loop
@@ -127,7 +178,12 @@ namespace WPF_Snake.ViewModels
                 {
                     var move = _nextMoves.Dequeue();
                     _currentDirection = move.Direction;
-                    MoveSnake(move.Xpos, move.Ypos);
+                    CheckIfSnakeEatSelf(move.Xpos, move.Ypos);
+                    CheckIfSnakeHitWall(move.Xpos, move.Ypos);
+                    if (!GameOver)
+                    {
+                        MoveSnake(move.Xpos, move.Ypos);
+                    }
                 }
                 else
                 {
@@ -136,6 +192,14 @@ namespace WPF_Snake.ViewModels
 
                 CheckIfFruitEaten();
             }
+
+            var hs = new HighScore();
+            hs.Score = Score;
+            hs.IsOldScore = false;
+
+            HighScores.Add(hs);
+
+            ShowHighScores();
         }
 
         /// <summary>
@@ -192,8 +256,8 @@ namespace WPF_Snake.ViewModels
 
             if(nextHeadPositionX < 0 || 
                nextHeadPositionY < 0 ||
-               nextHeadPositionX > MAX_GAME_GRID_SIZE || 
-               nextHeadPositionY > MAX_GAME_GRID_SIZE)
+               nextHeadPositionX >= MAX_GAME_GRID_SIZE || 
+               nextHeadPositionY >= MAX_GAME_GRID_SIZE)
             {
                 GameOver = true;
             }
@@ -259,6 +323,7 @@ namespace WPF_Snake.ViewModels
             }
 
             CheckIfSnakeEatSelf(xPos, yPos);
+            CheckIfSnakeHitWall(xPos, yPos);
             if (!GameOver)
             {
                 MoveSnake(xPos, yPos);

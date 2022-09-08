@@ -67,6 +67,12 @@
                                       Grid.RowSpan="2"
                                       DataContext="{Binding}"
                                       Visibility="{Binding MainMenuVisible, Converter={converter:BoolToVisibilityConverter}}"/>
+            
+            <controls:HighScoresControl Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        DataContext="{Binding}"
+                                        Visibility="{Binding HighScoresVisible, Converter={converter:BoolToVisibilityConverter}}"/>
+            
         </Grid>
     </Border>
 
