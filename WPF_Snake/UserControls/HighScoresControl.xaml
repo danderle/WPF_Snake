@@ -103,7 +103,7 @@
         <Button Grid.Row="2" 
                 Content="Main menu" 
                 FontSize="25"
-                Command="{Binding MainMenuCommand}"
+                Command="{Binding ShowMainMenuCommand}"
                 VerticalAlignment="Bottom"
                 HorizontalAlignment="Center"
                 Padding="50 10"

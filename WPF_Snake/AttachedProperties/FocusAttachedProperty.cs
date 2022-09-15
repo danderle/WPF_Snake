@@ -23,6 +23,7 @@ namespace WPF_Snake.AttachedProperties
             if (target != null && (bool)e.NewValue)
             {
                 target.Focus();
+                Keyboard.Focus(target);
             }
         }
 

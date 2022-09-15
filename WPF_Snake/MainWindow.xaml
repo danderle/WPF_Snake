@@ -35,7 +35,22 @@
                     <Ellipse DataContext="{Binding Fruit}"
                                 Canvas.Top="{Binding YPos}"
                                 Canvas.Left="{Binding XPos}"
-                                Width="{Binding Width}" Height="{Binding Height}" Fill="Green" />
+                                Width="{Binding Width}" Height="{Binding Height}"
+                             Fill="Red">
+                        <Ellipse.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <ColorAnimation Duration="0:0:0.5"
+                                                        To="White"
+                                                        AutoReverse="True"
+                                                        RepeatBehavior="Forever"
+                                                        Storyboard.TargetProperty="(Ellipse.Fill).(SolidColorBrush.Color)"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Ellipse.Triggers>
+                    </Ellipse>
                 </Canvas>
             </Viewbox>
             <Viewbox Grid.Row="1">

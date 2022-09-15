@@ -1,11 +1,11 @@
-﻿using WPF_Snake.ViewModels.Base;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace WPF_Snake.ViewModels
 {
     /// <summary>
     /// The View Model for each cell in the game grid
     /// </summary>
-    public class CellViewModel : BaseViewModel
+    public partial class CellViewModel : ObservableObject
     {
         #region Fields
 
@@ -34,17 +34,20 @@ namespace WPF_Snake.ViewModels
         /// <summary>
         /// The x position of a cell
         /// </summary>
-        public int XPos { get; set; }
+        [ObservableProperty]
+        private int xPos;
 
         /// <summary>
         /// The y position of a cell
         /// </summary>
-        public int YPos { get; set; }
+        [ObservableProperty]
+        private int yPos;
 
         /// <summary>
         /// The cells color in rgb 
         /// </summary>
-        public int[] Rgb { get; set; }
+        [ObservableProperty]
+        private int[] rgb;
 
         #endregion
 

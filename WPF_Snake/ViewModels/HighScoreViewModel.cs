@@ -1,18 +1,21 @@
-﻿using System.Text.Json.Serialization;
-using WPF_Snake.ViewModels.Base;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Text.Json.Serialization;
 
-namespace WPF_Snake.ViewModels
+namespace WPF_Snake.ViewModels;
+
+public partial class HighScoreViewModel : ObservableObject
 {
-    public class HighScoreViewModel : BaseViewModel
-    {
-        public int Score { get; set; }
+    [ObservableProperty]
+    private int score;
 
-        public string Name { get; set; } = string.Empty;
+    [ObservableProperty]
+    private string name = string.Empty;
 
-        [JsonIgnore]
-        public bool IsOldScore { get; set; } = true;
+    [JsonIgnore]
+    [ObservableProperty]
+    private bool isOldScore = true;
 
-        [JsonIgnore]
-        public bool Focus { get; set; }
-    }
+    [JsonIgnore]
+    [ObservableProperty]
+    private bool focus;
 }

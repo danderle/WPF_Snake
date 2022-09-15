@@ -92,7 +92,7 @@
         <Button Grid.Row="2" 
                 Content="High Scores" 
                 FontSize="25"
-                Command="{Binding HighScoresCommand}"
+                Command="{Binding ShowHighScoresCommand}"
                 VerticalAlignment="Center"
                 HorizontalAlignment="Center"
                 Padding="50 10"
