@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.Text.Json.Serialization;
 
-namespace WPF_Snake.ViewModels;
+namespace Snake.Core.ViewModels;
 
 public partial class HighScoreViewModel : ObservableObject
 {

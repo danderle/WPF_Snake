@@ -1,8 +1,8 @@
-﻿using WPF_Snake.DataModels;
+﻿using Snake.Core.DataModels;
 
-namespace WPF_Snake.Models
+namespace Snake.Core.Models
 {
-    internal class NextMove
+    public class NextMove
     {
         public int Xpos { get; }
         public int Ypos { get; }

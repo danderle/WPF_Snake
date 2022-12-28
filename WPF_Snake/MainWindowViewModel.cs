@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using WPF_Snake.DataModels;
-using WPF_Snake.Models;
-using WPF_Snake.ViewModels.Base;
+using Snake.Core.DataModels;
+using Snake.Core.Models;
+using Snake.Core.ViewModels;
 
 namespace WPF_Snake.ViewModels;
 

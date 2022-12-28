@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace WPF_Snake.ViewModels
+namespace Snake.Core.ViewModels
 {
     /// <summary>
     /// The View Model for each cell in the game grid

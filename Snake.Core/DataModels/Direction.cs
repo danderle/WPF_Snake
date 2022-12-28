@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WPF_Snake.DataModels
+namespace Snake.Core.DataModels
 {
     public enum Direction
     {
