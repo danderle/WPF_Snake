@@ -1,5 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Snake.Core.DataModels;
+using Snake.Core.Models;
+using Snake.Core.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,9 +14,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
-using Snake.Core.DataModels;
-using Snake.Core.Models;
-using Snake.Core.ViewModels;
 
 namespace WPF_Snake.ViewModels;
 
@@ -85,7 +85,8 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>
     /// The high scores
     /// </summary>
-    public ObservableCollection<HighScoreViewModel> HighScores { get; set; } = new ObservableCollection<HighScoreViewModel>();
+    [ObservableProperty]
+    public ObservableCollection<HighScoreViewModel> highScores = new ObservableCollection<HighScoreViewModel>();
 
     #endregion
 

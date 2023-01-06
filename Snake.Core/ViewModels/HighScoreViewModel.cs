@@ -12,10 +12,8 @@ public partial class HighScoreViewModel : ObservableObject
     private string name = string.Empty;
 
     [JsonIgnore]
-    [ObservableProperty]
-    private bool isOldScore = true;
+    public bool IsOldScore { get; set; } = true;
 
     [JsonIgnore]
-    [ObservableProperty]
-    private bool focus;
+    public bool Focus { get; set; }
 }
